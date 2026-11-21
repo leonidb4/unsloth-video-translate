@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    container_name: unsloth-video-translate
+    ports:
+      - "7777:7777"
+    env_file: .env
+    # внутри контейнера пути фиксированные; STORAGE_DIR/WORK_DIR из .env определяют,
+    # где данные лежат на ХОСТЕ (см. volumes). environment перекрывает env_file.
+    environment:
+      STORAGE_DIR: /app/storage
+      WORK_DIR: /app/work
+    volumes:
+      # данные вне контейнера — переживают rebuild/recreate; каталоги хоста берутся из .env:
+      - ${STORAGE_DIR:-./storage}:/app/storage  # готовые видео
+      - ${WORK_DIR:-./work}:/app/work           # рабочие файлы задач: чекпоинты, прогресс
+    restart: unless-stopped
